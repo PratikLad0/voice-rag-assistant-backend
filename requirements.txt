@@ -7,4 +7,5 @@ numpy
 sentence-transformers
 openai>=1.40.0
 tiktoken
+huggingface-hub>=0.24.0
 requests
