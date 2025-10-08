@@ -100,7 +100,7 @@ class RAG:
 
             # Bind first client now; others are bound lazily if needed
             self.hf_model = self.hf_models_chain[0]
-            self.hf_client = InferenceClient(model=self.hf_model, token=self.hf_token, timeout=60)
+            self.hf_client = InferenceClient(model=self.hf_model, token=self.hf_token, timeout=60, provider="hf-inference")
 
 
 
@@ -180,43 +180,70 @@ class RAG:
         delays = [0.0, 0.5, 1.5]
         last_err = None
 
-        for model_idx, model_name in enumerate(self.hf_models_chain):
-            # Ensure client is bound to this model
-            if model_idx > 0:
-                try:
-                    self.hf_client = InferenceClient(model=model_name, token=self.hf_token, timeout=60)
-                    self.hf_model = model_name
-                except Exception as e:
-                    last_err = e
-                    continue
+        # Build model chain (primary + env fallbacks + hardcoded safe ones)
+        primary = os.getenv("HF_MODEL", "").strip()
+        fallbacks_env = [m.strip() for m in os.getenv("HF_MODEL_FALLBACKS", "").split(",") if m.strip()]
+        default_chain = [
+            primary or "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+            "microsoft/Phi-3-mini-4k-instruct",
+            "Qwen/Qwen2.5-1.5B-Instruct",
+            "google/flan-t5-small",            # text2text
+        ]
+        seen, chain = set(), []
+        for m in (fallbacks_env + default_chain):
+            if m and m not in seen:
+                chain.append(m); seen.add(m)
 
-            for d in delays:
-                try:
-                    txt = self.hf_client.text_generation(
-                        prompt_merged,
-                        max_new_tokens=self.max_new_tokens,
-                        temperature=self.temperature,
-                        stop=stop,
-                        details=False,
-                        return_full_text=False,
-                    )
-                    return (txt or "").strip()
-                except HfHubHTTPError as e:
-                    # 404/403 → try next model in chain
-                    if getattr(e.response, "status_code", None) in (403, 404):
+        for model_name in chain:
+            try:
+                # (Re)bind client to this model
+                self.hf_client = InferenceClient(
+                    model=model_name, token=self.hf_token, timeout=60, provider="hf-inference"
+                )
+                self.hf_model = model_name
+            except Exception as e:
+                last_err = e
+                continue
+
+            # Try text-generation first, then text2text-generation if 403/404
+            for fn_name in ("text_generation", "text2text_generation"):
+                for d in delays:
+                    try:
+                        fn = getattr(self.hf_client, fn_name)
+                        kwargs = dict(
+                            max_new_tokens=self.max_new_tokens,
+                            temperature=self.temperature,
+                            details=False,
+                            return_full_text=False,
+                        )
+                        # stop= is only valid for text_generation
+                        if fn_name == "text_generation":
+                            kwargs["stop"] = stop
+
+                            txt = fn(prompt_merged, **kwargs)
+                        else:
+                            # text2text models ignore stop; just pass the prompt
+                            txt = fn(prompt_merged, **kwargs)
+
+                        out = (txt or "").strip()
+                        if out:
+                            return out
+                    except HfHubHTTPError as e:
                         last_err = e
-                        break  # go to next model
-                    last_err = e
-                    time.sleep(d)
-                except Exception as e:
-                    last_err = e
-                    time.sleep(d)
+                        # If it's a hard 403/404 for this fn/model, switch fn/model
+                        status = getattr(e.response, "status_code", None)
+                        if status in (403, 404):
+                            break
+                        time.sleep(d)
+                    except Exception as e:
+                        last_err = e
+                        time.sleep(d)
 
-        # If we got here, all models failed
         import traceback; traceback.print_exc()
+        tried = ", ".join(chain)
         raise HTTPException(
             status_code=502,
-            detail=f"HuggingFace inference error (models tried: {', '.join(self.hf_models_chain)}): {type(last_err).__name__}: {last_err}"
+            detail=f"HuggingFace inference error (models tried: {tried}): {type(last_err).__name__}: {last_err}"
         )
 
     def _openai_chat(self, system: str, user: str) -> str:
