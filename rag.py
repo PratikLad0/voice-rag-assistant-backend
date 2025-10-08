@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 from typing import List, Tuple
 
+import time
+from fastapi import HTTPException
+
 import faiss
 import numpy as np
 import requests
@@ -153,8 +156,6 @@ class RAG:
         except requests.RequestException as e:
             raise HTTPException(status_code=502, detail=f"Ollama error: {e}")
 
-    import time
-    from fastapi import HTTPException
 
     def _hf_generate(self, prompt_merged: str) -> str:
         stop = ["\nUser:", "\nAssistant:", "\nSystem:"]
