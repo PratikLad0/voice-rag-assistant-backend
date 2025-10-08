@@ -198,7 +198,7 @@ class RAG:
             try:
                 # (Re)bind client to this model
                 self.hf_client = InferenceClient(
-                    model=model_name, token=self.hf_token, timeout=60, provider="hf-inference"
+                    model=model_name, token=self.hf_token, timeout=60
                 )
                 self.hf_model = model_name
             except Exception as e:
