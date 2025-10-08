@@ -1,10 +1,11 @@
+dotenv
 fastapi
 uvicorn[standard]
 python-dotenv
 pydantic
 faiss-cpu
 numpy
-sentence-transformers
+fastembed==0.3.3
 openai>=1.40.0
 tiktoken
 huggingface-hub>=0.24.0

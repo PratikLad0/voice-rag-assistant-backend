@@ -1,3 +1,4 @@
+# backend/rag.py
 import os
 import json
 from pathlib import Path
@@ -7,7 +8,7 @@ import faiss
 import numpy as np
 import requests
 from fastapi import HTTPException
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding  # tiny, CPU-only, no torch
 
 try:
     from huggingface_hub import InferenceClient
@@ -18,52 +19,53 @@ MODELS_DIR = Path(__file__).parent / "models"
 
 
 # ------------ env helpers ------------
-def env_int(key: str, default: int) -> int:
+def _env_int(key: str, default: int) -> int:
     try:
         return int(os.getenv(key, default))
     except Exception:
         return default
 
 
-def env_float(key: str, default: float) -> float:
+def _env_float(key: str, default: float) -> float:
     try:
         return float(os.getenv(key, default))
     except Exception:
         return default
 
 
-# ------------ RAG ------------
+# ------------ RAG core ------------
 class RAG:
     """
-    Retrieval-Augmented Generation core with provider switch:
-      - Ollama (local)
-      - Hugging Face Inference API (serverless, free tier)
+    Retrieval-Augmented Generation with provider switch:
+      - Ollama (local dev)
+      - Hugging Face Inference API (free hosted)
       - OpenAI (optional)
+    Uses FastEmbed for embeddings to keep memory low.
     """
 
     def __init__(self):
-        # Retrieval setup
-        self.embed_model_name = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
-        self.top_k = env_int("TOP_K", 4)
+        # Retrieval / embeddings
+        self.embed_model_name = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
+        self.top_k = _env_int("TOP_K", 4)
 
-        self.enc = SentenceTransformer(self.embed_model_name)
-
-        # Load FAISS + chunks
+        # Load FAISS index and chunk metadata
         index_path = MODELS_DIR / "faiss.index"
         chunks_path = MODELS_DIR / "chunks.json"
         if not index_path.exists() or not chunks_path.exists():
-            raise RuntimeError(
-                "FAISS index or chunks.json missing. Run `python ingest.py` first."
-            )
+            raise RuntimeError("FAISS index or chunks.json missing. Run `python ingest.py` first.")
         self.index = faiss.read_index(str(index_path))
         self.chunks = json.loads(chunks_path.read_text(encoding="utf-8"))
 
-        # Generation/common settings
-        self.temperature = env_float("LLM_TEMPERATURE", 0.2)
-        self.max_new_tokens = env_int("LLM_MAX_NEW_TOKENS", 256)
+        # FastEmbed encoder (downloads small ONNX on first use)
+        self.embedder = TextEmbedding(model_name=self.embed_model_name)
+
+        # Generation config
+        self.temperature = _env_float("LLM_TEMPERATURE", 0.2)
+        self.max_new_tokens = _env_int("LLM_MAX_NEW_TOKENS", 256)
 
         # Provider switch
         self.provider = os.getenv("LLM_PROVIDER", "ollama").lower()
+        print(self.provider)
 
         if self.provider == "ollama":
             self.ollama_base = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
@@ -74,9 +76,9 @@ class RAG:
                 raise RuntimeError("huggingface-hub not installed. Add it to requirements.txt")
             self.hf_token = os.getenv("HF_API_TOKEN")
             if not self.hf_token:
-                raise RuntimeError("HF_API_TOKEN is not set. Get one at https://huggingface.co/settings/tokens")
-            self.hf_model = os.getenv("HF_MODEL", "microsoft/Phi-3-mini-4k-instruct")
-            # Bind model to client once (avoids provider resolution errors)
+                raise RuntimeError("HF_API_TOKEN is not set. Create one at https://huggingface.co/settings/tokens")
+            self.hf_model = os.getenv("HF_MODEL", "Qwen/Qwen2.5-3B-Instruct")
+            # Bind model to client once to avoid provider resolution issues
             self.hf_client = InferenceClient(model=self.hf_model, token=self.hf_token)
 
         else:  # openai (optional)
@@ -91,9 +93,18 @@ class RAG:
             self.llm_model = os.getenv("LLM_MODEL", "gpt-4o-mini")
 
     # ---------- Retrieval ----------
+    def _embed_query(self, text: str) -> np.ndarray:
+        # FastEmbed returns a generator; take the first vector
+        vec = np.array(list(self.embedder.embed([text]))[0], dtype="float32")
+        # Normalize for inner-product similarity
+        norm = np.linalg.norm(vec)
+        if norm > 0:
+            vec = vec / norm
+        return vec.reshape(1, -1)
+
     def retrieve(self, query: str) -> List[dict]:
-        q = self.enc.encode([query], convert_to_numpy=True, normalize_embeddings=True)
-        D, I = self.index.search(q, self.top_k)
+        q_vec = self._embed_query(query)
+        D, I = self.index.search(q_vec, self.top_k)
         hits = [self.chunks[int(i)] for i in I[0] if i != -1]
         return hits
 
@@ -101,7 +112,6 @@ class RAG:
         """
         Returns (system, user, merged_for_hf)
         """
-        # Join retrieved context
         ctx = "\n\n".join([f"[{h['title']}] {h['text']}" for h in hits]) if hits else ""
         cite_titles = "; ".join(sorted({h["title"] for h in hits})) if hits else "the knowledge base"
 
@@ -137,7 +147,7 @@ class RAG:
 
     def _hf_generate(self, prompt_merged: str) -> str:
         try:
-            # Use `stop` (not deprecated stop_sequences)
+            # Use `stop` (not deprecated `stop_sequences`)
             stop = ["\nUser:", "\nAssistant:", "\nSystem:"]
             text = self.hf_client.text_generation(
                 prompt_merged,
