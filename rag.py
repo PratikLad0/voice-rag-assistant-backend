@@ -100,7 +100,7 @@ class RAG:
 
             # Bind first client now; others are bound lazily if needed
             self.hf_model = self.hf_models_chain[0]
-            self.hf_client = InferenceClient(model=self.hf_model, token=self.hf_token, timeout=60, provider="hf-inference")
+            self.hf_client = InferenceClient(model=self.hf_model, token=self.hf_token, timeout=60)
 
 
 
