@@ -1,0 +1,164 @@
+[
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\cancellation_policy.md",
+    "title": "cancellation_policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\cancellation_policy.md:::0",
+    "text": "# Order Cancellation\nOrders can be cancelled **before delivery is scheduled** for a full refund.\nIf delivery is scheduled, a **₹2,000 scheduling fee** may apply.\nCustom-ordered vehicles may be subject to supplier cancellation fees. (from Cancellation Policy)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\contact.md",
+    "title": "contact",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\contact.md:::0",
+    "text": "# Contact & Escalations\nSupport hours: Mon–Sat 9:00–19:00 IST.\nEmail: support@dealer.example • Phone: 1800-000-1234\nEscalation: Level 2 within 2 business days if an issue remains unresolved. (from Contact Page)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\ev_battery_warranty.md",
+    "title": "ev_battery_warranty",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\ev_battery_warranty.md:::0",
+    "text": "# EV Battery Warranty\nEV traction batteries are covered for **8 years/160,000 km** against manufacturing defects.\nCapacity retention below **70%** within warranty period qualifies for repair or replacement.\nExclusions: damage from floods, improper charging, or modifications. (from EV Battery Warranty)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\exchange_policy.txt",
+    "title": "exchange_policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\exchange_policy.txt:::0",
+    "text": "Exchange Policy\nYou can exchange a vehicle within 10 days for another car of equal or higher value.\n- Any price difference must be paid before redelivery.\n- Only one exchange per purchase.\n- Title transfer fees are borne by the customer. (from Exchange Policy)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#0",
+    "title": "Returns Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#0:::0",
+    "text": "Vehicles returnable within 7 days or 250 km, restocking fee ₹5,000, refund to original payment method after inspection."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#1",
+    "title": "Exchange Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#1:::0",
+    "text": "One-time exchange within 10 days; pay price difference before redelivery."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#2",
+    "title": "Delivery Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#2:::0",
+    "text": "Standard delivery 3–7 business days metro; 7–14 remote. Inspect upon delivery."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#3",
+    "title": "Warranty Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#3:::0",
+    "text": "Certified cars have 12-month/20,000 km powertrain warranty; consumables excluded."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#4",
+    "title": "Service Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#4:::0",
+    "text": "Service every 10,000 km/12 months; prepaid plans available."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#5",
+    "title": "EV Battery Warranty",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#5:::0",
+    "text": "8 years/160,000 km; capacity below 70% qualifies for repair or replacement."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#6",
+    "title": "Roadside Assistance",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#6:::0",
+    "text": "24×7 coverage; towing up to 50 km included; extra km billed."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#7",
+    "title": "Financing Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#7:::0",
+    "text": "Min 10% down payment; tenure 12–84 months; early foreclosure fee 2% in first year."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#8",
+    "title": "Cancellation Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#8:::0",
+    "text": "Cancel before delivery scheduling for full refund; ₹2,000 fee once scheduled."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#9",
+    "title": "Test Drive Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#9:::0",
+    "text": "30-minute max with staff; license and Aadhaar required."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#10",
+    "title": "Parts Returns Policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#10:::0",
+    "text": "Unopened parts returnable within 30 days; electrical parts non-returnable once installed."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#11",
+    "title": "Privacy Notice",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#11:::0",
+    "text": "We process KYC and telematics with consent; no data sales; deletion on request."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#12",
+    "title": "Contact",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\faq.json#12:::0",
+    "text": "Mon–Sat 9–19 IST; support@dealer.example; 1800-000-1234."
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\financing.md",
+    "title": "financing",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\financing.md:::0",
+    "text": "# Financing & Payments\n- Minimum down payment: **10%** of on-road price.\n- Loan tenure: 12–84 months; prepayment allowed with 2% foreclosure charge in first 12 months.\n- Documents: PAN, Aadhaar, bank statements (6 months), salary slips (3 months). (from Financing Policy)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\parts_accessories_returns.txt",
+    "title": "parts_accessories_returns",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\parts_accessories_returns.txt:::0",
+    "text": "Parts & Accessories Returns\n- Unopened parts: return within 30 days with receipt.\n- Electrical parts: non-returnable once installed.\n- Refunds to original payment method; shipping is non-refundable. (from Parts Returns Policy)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\privacy.md",
+    "title": "privacy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\privacy.md:::0",
+    "text": "# Privacy Notice (Automotive Services)\nWe collect contact info, KYC docs, and telematics (with consent) to provide services.\nWe do not sell personal data. You may request deletion via support@dealer.example. (from Privacy Notice)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\README.txt",
+    "title": "README",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\README.txt:::0",
+    "text": "Cars Sample Dataset\n====================\nThese documents are intended for a customer-care Voice RAG demo in the automotive domain.\n- Mix of Markdown, TXT, and a JSON FAQ compatible with the provided `ingest.py`.\n- Titles appear in citations (e.g., \"(from Warranty Policy)\").\n\nSuggested questions\n- What's your returns policy?\n- How long is the EV battery warranty?\n- Can I exchange my car for another model?\n- How do I cancel my order?\n- What's included in roadside assistance?\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\returns.md",
+    "title": "returns",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\returns.md:::0",
+    "text": "# Vehicle Returns Policy\nMost vehicle purchases are final sale. However, eligible customers may return a vehicle within **7 calendar days or 250 km**, whichever comes first, provided:\n- The vehicle is in substantially the same condition as delivered.\n- All keys, documents, and accessories are returned.\n- No accident/damage has occurred.\nRefunds are processed to the **original payment method** within 7–10 business days after inspection. A **restocking fee of ₹5,000** applies. (from Returns Policy)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\roadside_assistance.txt",
+    "title": "roadside_assistance",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\roadside_assistance.txt:::0",
+    "text": "Roadside Assistance\n24×7 coverage for breakdowns, flat tires, dead batteries, and towing up to 50 km.\nCall the hotline in your delivery packet. Additional km billed at standard rates. (from Roadside Assistance)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\service_maintenance.md",
+    "title": "service_maintenance",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\service_maintenance.md:::0",
+    "text": "# Service & Maintenance\nRecommended service interval: **10,000 km or 12 months**, whichever comes first.\nWe provide prepaid maintenance plans that cover oil changes, filters, inspections, and tire rotations.\nAppointments can be booked via the app or customer portal. (from Service Policy)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\shipping_delivery.md",
+    "title": "shipping_delivery",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\shipping_delivery.md:::0",
+    "text": "# Delivery & Shipping\nWe offer home delivery within India.\n- **Standard delivery:** 3–7 business days within metro areas.\n- **Remote areas:** 7–14 business days.\n- Delivery scheduling window: 4 hours.\nInspect the car upon delivery and note issues on the delivery receipt. (from Delivery Policy)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\test_drive_policy.md",
+    "title": "test_drive_policy",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\test_drive_policy.md:::0",
+    "text": "# Test Drive Policy\n- Valid driver’s license and Aadhaar required.\n- Max duration **30 minutes**; accompanied by staff.\n- Obey local traffic laws; driver is responsible for fines or damages from negligence. (from Test Drive Policy)\n"
+  },
+  {
+    "doc_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\warranty.md",
+    "title": "warranty",
+    "chunk_id": "C:\\genai\\voice-rag-assistant\\backend\\data\\warranty.md:::0",
+    "text": "# Limited Warranty\nCertified pre-owned vehicles include a **12-month/20,000 km** limited warranty on powertrain components.\nExclusions: wear-and-tear items (brake pads, wipers), abuse, racing, aftermarket tuning.\nClaims require prior authorization from our service center. (from Warranty Policy)\n"
+  }
+]

@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+pydantic
+faiss-cpu
+numpy
+sentence-transformers
+openai>=1.40.0
+tiktoken
+requests

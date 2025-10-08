@@ -1,0 +1,56 @@
+{
+  "faqs": [
+    {
+      "title": "Returns Policy",
+      "answer": "Vehicles returnable within 7 days or 250 km, restocking fee \u20b95,000, refund to original payment method after inspection."
+    },
+    {
+      "title": "Exchange Policy",
+      "answer": "One-time exchange within 10 days; pay price difference before redelivery."
+    },
+    {
+      "title": "Delivery Policy",
+      "answer": "Standard delivery 3\u20137 business days metro; 7\u201314 remote. Inspect upon delivery."
+    },
+    {
+      "title": "Warranty Policy",
+      "answer": "Certified cars have 12-month/20,000 km powertrain warranty; consumables excluded."
+    },
+    {
+      "title": "Service Policy",
+      "answer": "Service every 10,000 km/12 months; prepaid plans available."
+    },
+    {
+      "title": "EV Battery Warranty",
+      "answer": "8 years/160,000 km; capacity below 70% qualifies for repair or replacement."
+    },
+    {
+      "title": "Roadside Assistance",
+      "answer": "24\u00d77 coverage; towing up to 50 km included; extra km billed."
+    },
+    {
+      "title": "Financing Policy",
+      "answer": "Min 10% down payment; tenure 12\u201384 months; early foreclosure fee 2% in first year."
+    },
+    {
+      "title": "Cancellation Policy",
+      "answer": "Cancel before delivery scheduling for full refund; \u20b92,000 fee once scheduled."
+    },
+    {
+      "title": "Test Drive Policy",
+      "answer": "30-minute max with staff; license and Aadhaar required."
+    },
+    {
+      "title": "Parts Returns Policy",
+      "answer": "Unopened parts returnable within 30 days; electrical parts non-returnable once installed."
+    },
+    {
+      "title": "Privacy Notice",
+      "answer": "We process KYC and telematics with consent; no data sales; deletion on request."
+    },
+    {
+      "title": "Contact",
+      "answer": "Mon\u2013Sat 9\u201319 IST; support@dealer.example; 1800-000-1234."
+    }
+  ]
+}

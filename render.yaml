@@ -1,0 +1,42 @@
+services:
+  - type: private
+    name: ollama
+    env: docker
+    plan: starter          # choose plan with enough RAM/CPU for your model
+    autoDeploy: false
+    dockerfilePath: ./infra/ollama.Dockerfile
+    disk:
+      name: ollama-cache
+      mountPath: /root/.ollama
+      sizeGB: 20           # adjust for model size(s)
+    envVars:
+      - key: OLLAMA_HOST
+        value: 0.0.0.0
+      - key: OLLAMA_MODEL
+        value: llama3:8b   # or mistral:7b, qwen2.5:7b, etc.
+
+  - type: web
+    name: voice-rag-backend
+    env: python
+    plan: starter          # free can work, but starter gives better cold starts
+    buildCommand: |
+      cd backend
+      pip install -r requirements.txt
+      python ingest.py
+    startCommand: |
+      cd backend
+      uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: LLM_PROVIDER
+        value: ollama
+      - key: OLLAMA_BASE_URL
+        value: http://ollama:11434
+      - key: EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: TOP_K
+        value: "4"
+      # Keep these around for easy switching if needed:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: gpt-4o-mini
