@@ -17,6 +17,7 @@ except Exception:  # pragma: no cover
 
 MODELS_DIR = Path(__file__).parent / "models"
 
+CONTEXT_CHAR_BUDGET = int(os.getenv("CONTEXT_CHAR_BUDGET", "4000"))  # ~1k tokens
 
 # ------------ env helpers ------------
 def _env_int(key: str, default: int) -> int:
@@ -79,7 +80,8 @@ class RAG:
                 raise RuntimeError("HF_API_TOKEN is not set. Create one at https://huggingface.co/settings/tokens")
             self.hf_model = os.getenv("HF_MODEL", "Qwen/Qwen2.5-3B-Instruct")
             # Bind model to client once to avoid provider resolution issues
-            self.hf_client = InferenceClient(model=self.hf_model, token=self.hf_token)
+            self.hf_client = InferenceClient(model=self.hf_model, token=self.hf_token, timeout=60)
+
 
         else:  # openai (optional)
             try:
@@ -108,11 +110,16 @@ class RAG:
         hits = [self.chunks[int(i)] for i in I[0] if i != -1]
         return hits
 
-    def build_prompt(self, query: str, hits: List[dict]) -> Tuple[str, str, str]:
-        """
-        Returns (system, user, merged_for_hf)
-        """
-        ctx = "\n\n".join([f"[{h['title']}] {h['text']}" for h in hits]) if hits else ""
+    def build_prompt(self, query, hits):
+        pieces, used = [], 0
+        for h in hits:
+            chunk = f"[{h['title']}] {h['text']}\n\n"
+            if used + len(chunk) > CONTEXT_CHAR_BUDGET:
+                break
+            pieces.append(chunk)
+            used += len(chunk)
+
+        ctx = "".join(pieces) or "(no relevant context found)"
         cite_titles = "; ".join(sorted({h["title"] for h in hits})) if hits else "the knowledge base"
 
         system = (
@@ -124,6 +131,7 @@ class RAG:
         user = f"Question: {query}\n\nContext:\n{ctx}\n\nRemember to end with: (from {cite_titles})"
         merged = f"{system}\n\n{user}"
         return system, user, merged
+
 
     # ---------- Providers ----------
     def _ollama_chat(self, system: str, user: str) -> str:
@@ -145,21 +153,29 @@ class RAG:
         except requests.RequestException as e:
             raise HTTPException(status_code=502, detail=f"Ollama error: {e}")
 
+    import time
+    from fastapi import HTTPException
+
     def _hf_generate(self, prompt_merged: str) -> str:
-        try:
-            # Use `stop` (not deprecated `stop_sequences`)
-            stop = ["\nUser:", "\nAssistant:", "\nSystem:"]
-            text = self.hf_client.text_generation(
-                prompt_merged,
-                max_new_tokens=self.max_new_tokens,
-                temperature=self.temperature,
-                stop=stop,
-                details=False,
-                return_full_text=False,
-            )
-            return (text or "").strip()
-        except Exception as e:
-            raise HTTPException(status_code=502, detail=f"HuggingFace inference error: {type(e).__name__}: {e}")
+        stop = ["\nUser:", "\nAssistant:", "\nSystem:"]
+        delays = [0.0, 0.5, 1.5]  # backoff
+        last_err = None
+        for d in delays:
+            try:
+                return (self.hf_client.text_generation(
+                    prompt_merged,
+                    max_new_tokens=self.max_new_tokens,
+                    temperature=self.temperature,
+                    stop=stop,
+                    details=False,
+                    return_full_text=False,
+                ) or "").strip()
+            except Exception as e:
+                last_err = e
+                time.sleep(d)
+        # Log the exact error on the server for debugging
+        import traceback; traceback.print_exc()
+        raise HTTPException(status_code=502, detail=f"HuggingFace inference error: {type(last_err).__name__}: {last_err}")
 
     def _openai_chat(self, system: str, user: str) -> str:
         try:
@@ -198,4 +214,11 @@ class RAG:
 
         text = text or "Sorry, I couldn't generate a response."
         text = self._ensure_citation(text, hits)
+        
+        if not text.strip():
+            if not hits:
+                text = "Sorry, I don’t see this in our docs. Please rephrase or ask about returns or order status. (from the knowledge base)"
+            else:
+                text = "Sorry, I couldn’t generate a response. (from the knowledge base)"
+
         return text, hits

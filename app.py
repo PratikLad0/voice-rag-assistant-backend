@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv  # add this
+load_dotenv()   
 
 from rag import RAG
 
@@ -45,6 +46,19 @@ class AskIn(BaseModel):
     text: str
     sessionId: Optional[str] = None
 
+@app.get("/")
+def root():
+    return {
+        "ok": True,
+        "service": "Voice RAG Backend",
+        "docs": "/health, /version, /diag, /order-status?orderId=..., POST /ask",
+    }
+
+@app.get("/favicon.ico")
+def favicon():
+    from fastapi import Response
+    return Response(status_code=204)
+
 
 @app.get("/health")
 def health():
@@ -57,6 +71,17 @@ def version():
         "app": "Voice RAG Assistant",
         "version": "1.0.0",
         "provider": os.getenv("LLM_PROVIDER", "ollama"),
+    }
+
+@app.get("/diag")
+def diag():
+    import os
+    return {
+        "provider": os.getenv("LLM_PROVIDER"),
+        "hf_model": os.getenv("HF_MODEL"),
+        "hf_token_set": bool(os.getenv("HF_API_TOKEN")),
+        "max_new_tokens": int(os.getenv("LLM_MAX_NEW_TOKENS", "0")),
+        "context_char_budget": int(os.getenv("CONTEXT_CHAR_BUDGET", "0")),
     }
 
 
