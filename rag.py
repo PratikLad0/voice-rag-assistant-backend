@@ -6,6 +6,7 @@ from typing import List, Tuple
 
 import time
 from fastapi import HTTPException
+from huggingface_hub.utils import HfHubHTTPError
 
 import faiss
 import numpy as np
@@ -81,9 +82,26 @@ class RAG:
             self.hf_token = os.getenv("HF_API_TOKEN")
             if not self.hf_token:
                 raise RuntimeError("HF_API_TOKEN is not set. Create one at https://huggingface.co/settings/tokens")
-            self.hf_model = os.getenv("HF_MODEL", "Qwen/Qwen2.5-3B-Instruct")
-            # Bind model to client once to avoid provider resolution issues
+
+            # Primary + fallbacks (you can override with env vars)
+            primary = os.getenv("HF_MODEL", "").strip()
+            fallbacks_env = os.getenv("HF_MODEL_FALLBACKS", "").strip()
+            fallbacks = [m.strip() for m in fallbacks_env.split(",") if m.strip()]
+
+            # Good default chain (small, usually available)
+            default_chain = [
+                primary or "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+                "microsoft/Phi-3-mini-4k-instruct",
+                "Qwen/Qwen2.5-1.5B-Instruct"
+            ]
+            # merge unique, keep order
+            seen = set()
+            self.hf_models_chain = [m for m in (fallbacks + default_chain) if not (m in seen or seen.add(m))]
+
+            # Bind first client now; others are bound lazily if needed
+            self.hf_model = self.hf_models_chain[0]
             self.hf_client = InferenceClient(model=self.hf_model, token=self.hf_token, timeout=60)
+
 
 
         else:  # openai (optional)
@@ -159,24 +177,47 @@ class RAG:
 
     def _hf_generate(self, prompt_merged: str) -> str:
         stop = ["\nUser:", "\nAssistant:", "\nSystem:"]
-        delays = [0.0, 0.5, 1.5]  # backoff
+        delays = [0.0, 0.5, 1.5]
         last_err = None
-        for d in delays:
-            try:
-                return (self.hf_client.text_generation(
-                    prompt_merged,
-                    max_new_tokens=self.max_new_tokens,
-                    temperature=self.temperature,
-                    stop=stop,
-                    details=False,
-                    return_full_text=False,
-                ) or "").strip()
-            except Exception as e:
-                last_err = e
-                time.sleep(d)
-        # Log the exact error on the server for debugging
+
+        for model_idx, model_name in enumerate(self.hf_models_chain):
+            # Ensure client is bound to this model
+            if model_idx > 0:
+                try:
+                    self.hf_client = InferenceClient(model=model_name, token=self.hf_token, timeout=60)
+                    self.hf_model = model_name
+                except Exception as e:
+                    last_err = e
+                    continue
+
+            for d in delays:
+                try:
+                    txt = self.hf_client.text_generation(
+                        prompt_merged,
+                        max_new_tokens=self.max_new_tokens,
+                        temperature=self.temperature,
+                        stop=stop,
+                        details=False,
+                        return_full_text=False,
+                    )
+                    return (txt or "").strip()
+                except HfHubHTTPError as e:
+                    # 404/403 → try next model in chain
+                    if getattr(e.response, "status_code", None) in (403, 404):
+                        last_err = e
+                        break  # go to next model
+                    last_err = e
+                    time.sleep(d)
+                except Exception as e:
+                    last_err = e
+                    time.sleep(d)
+
+        # If we got here, all models failed
         import traceback; traceback.print_exc()
-        raise HTTPException(status_code=502, detail=f"HuggingFace inference error: {type(last_err).__name__}: {last_err}")
+        raise HTTPException(
+            status_code=502,
+            detail=f"HuggingFace inference error (models tried: {', '.join(self.hf_models_chain)}): {type(last_err).__name__}: {last_err}"
+        )
 
     def _openai_chat(self, system: str, user: str) -> str:
         try:
