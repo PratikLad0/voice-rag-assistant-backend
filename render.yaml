@@ -1,24 +1,25 @@
 services:
-  - type: private
+  # 1) Private Ollama service (internal only)
+  - type: pserv                 # <-- NOT 'private'
     name: ollama
-    env: docker
-    plan: starter          # choose plan with enough RAM/CPU for your model
-    autoDeploy: false
+    runtime: docker
+    plan: starter               # private services can't be on 'free'
     dockerfilePath: ./infra/ollama.Dockerfile
-    disk:
-      name: ollama-cache
-      mountPath: /root/.ollama
-      sizeGB: 20           # adjust for model size(s)
     envVars:
       - key: OLLAMA_HOST
         value: 0.0.0.0
       - key: OLLAMA_MODEL
-        value: llama3:8b   # or mistral:7b, qwen2.5:7b, etc.
+        value: llama3:8b
+    disk:
+      name: ollama-cache
+      mountPath: /root/.ollama  # where Ollama stores models
+      sizeGB: 20
 
+  # 2) Public FastAPI backend
   - type: web
     name: voice-rag-backend
-    env: python
-    plan: starter          # free can work, but starter gives better cold starts
+    runtime: python
+    plan: starter
     buildCommand: |
       cd backend
       pip install -r requirements.txt
@@ -30,12 +31,14 @@ services:
       - key: LLM_PROVIDER
         value: ollama
       - key: OLLAMA_BASE_URL
-        value: http://ollama:11434
+        value: http://ollama:11434   # internal DNS: <service name>:<port>
+      - key: OLLAMA_MODEL
+        value: llama3:8b
       - key: EMBEDDING_MODEL
         value: sentence-transformers/all-MiniLM-L6-v2
       - key: TOP_K
         value: "4"
-      # Keep these around for easy switching if needed:
+      # optional: keep OpenAI vars for easy switching
       - key: OPENAI_API_KEY
         sync: false
       - key: LLM_MODEL
